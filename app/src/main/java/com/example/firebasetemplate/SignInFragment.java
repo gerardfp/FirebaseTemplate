@@ -3,9 +3,11 @@ package com.example.firebasetemplate;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -17,7 +19,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes;
 import com.google.android.gms.common.api.ApiException;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
@@ -46,6 +47,25 @@ public class SignInFragment extends AppFragment {
 
         binding.googleSignIn.setOnClickListener(view1 -> {
             signInClient.launch(googleSignInClient.getSignInIntent());
+        });
+
+        binding.emailSignIn.setOnClickListener(v -> {
+            FirebaseAuth.getInstance()
+                    .signInWithEmailAndPassword(
+                            binding.email.getText().toString(),
+                            binding.password.getText().toString()
+                    ).addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    navController.navigate(R.id.action_signInFragment_to_postsHomeFragment);
+                } else {
+                    Toast.makeText(requireContext(), task.getException().getLocalizedMessage(),
+                            Toast.LENGTH_SHORT).show();
+                }
+            });
+        });
+
+        binding.goToRegister.setOnClickListener(v -> {
+            navController.navigate(R.id.action_signInFragment_to_registerFragment);
         });
     }
 
