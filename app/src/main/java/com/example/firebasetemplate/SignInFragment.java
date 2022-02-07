@@ -17,6 +17,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes;
 import com.google.android.gms.common.api.ApiException;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
@@ -38,6 +39,7 @@ public class SignInFragment extends AppFragment {
 
         GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(requireActivity(), new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
                 .build());
 
         firebaseAuthWithGoogle(GoogleSignIn.getLastSignedInAccount(requireContext()));
@@ -52,7 +54,9 @@ public class SignInFragment extends AppFragment {
                 if (result.getResultCode() == Activity.RESULT_OK) {
                     try {
                         firebaseAuthWithGoogle(GoogleSignIn.getSignedInAccountFromIntent(result.getData()).getResult(ApiException.class));
-                    } catch (ApiException e) {}
+                    } catch (ApiException e) {
+
+                    }
                 }
             });
 
@@ -60,7 +64,7 @@ public class SignInFragment extends AppFragment {
         if(account == null) return;
 
         binding.signInProgressBar.setVisibility(View.VISIBLE);
-        binding.googleSignIn.setVisibility(View.GONE);
+        binding.signInForm.setVisibility(View.GONE);
 
         FirebaseAuth.getInstance().signInWithCredential(GoogleAuthProvider.getCredential(account.getIdToken(), null))
                 .addOnCompleteListener(requireActivity(), task -> {
@@ -68,7 +72,7 @@ public class SignInFragment extends AppFragment {
                         navController.navigate(R.id.action_signInFragment_to_postsHomeFragment);
                     } else {
                         binding.signInProgressBar.setVisibility(View.GONE);
-                        binding.googleSignIn.setVisibility(View.VISIBLE);
+                        binding.signInForm.setVisibility(View.VISIBLE);
                     }
                 });
     }
