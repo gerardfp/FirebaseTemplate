@@ -27,6 +27,10 @@ public class RegisterFragment extends AppFragment {
 
 
         binding.createAccountButton.setOnClickListener(v -> {
+            if (binding.passwordEditText.getText().toString().isEmpty()) {
+                binding.passwordEditText.setError("Required");
+                return;
+            }
             FirebaseAuth.getInstance()
                     .createUserWithEmailAndPassword(
                             binding.emailEditText.getText().toString(),
