@@ -21,6 +21,7 @@ public class PostsHomeFragment extends AppFragment {
 
     private FragmentPostsBinding binding;
     private List<Post> postsList = new ArrayList<>();
+    private PostsAdapter adapter;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -33,10 +34,13 @@ public class PostsHomeFragment extends AppFragment {
 
         binding.fab.setOnClickListener(v -> navController.navigate(R.id.newPostFragment));
 
+        binding.postsRecyclerView.setAdapter(adapter = new PostsAdapter());
+
         db.collection("posts").addSnapshotListener((collectionSnapshot, e) -> {
             for (DocumentSnapshot documentSnapshot: collectionSnapshot) {
                 postsList.add(documentSnapshot.toObject(Post.class));
             }
+            adapter.notifyDataSetChanged();
         });
     }
 
