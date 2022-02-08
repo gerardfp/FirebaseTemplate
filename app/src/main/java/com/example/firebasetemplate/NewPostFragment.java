@@ -38,12 +38,18 @@ public class NewPostFragment extends AppFragment {
         });
 
         binding.publicar.setOnClickListener(v -> {
+            binding.publicar.setEnabled(false);
             Post post = new Post();
             post.content = binding.contenido.getText().toString();
             post.authorName = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
             post.date = LocalDateTime.now().toString();
 
-            FirebaseFirestore.getInstance().collection("posts").add(post);
+            FirebaseFirestore.getInstance().collection("posts")
+                    .add(post)
+                    .addOnCompleteListener(task -> {
+                        binding.publicar.setEnabled(true);
+                        navController.popBackStack();
+                    });
         });
     }
 
