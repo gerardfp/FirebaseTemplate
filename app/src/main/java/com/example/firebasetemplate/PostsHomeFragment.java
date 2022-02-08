@@ -50,12 +50,13 @@ public class PostsHomeFragment extends AppFragment {
 
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-
+            holder.binding.contenido.setText(postsList.get(position).content);
+            holder.binding.autor.setText(postsList.get(position).authorName);
         }
 
         @Override
         public int getItemCount() {
-            return 0;
+            return postsList.size();
         }
 
         class ViewHolder extends RecyclerView.ViewHolder {
