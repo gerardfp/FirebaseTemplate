@@ -7,12 +7,20 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.firebasetemplate.databinding.FragmentPostsBinding;
+import com.example.firebasetemplate.databinding.ViewholderPostBinding;
+import com.example.firebasetemplate.model.Post;
+import com.google.firebase.firestore.DocumentSnapshot;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class PostsHomeFragment extends AppFragment {
 
     private FragmentPostsBinding binding;
+    private List<Post> postsList = new ArrayList<>();
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -25,5 +33,37 @@ public class PostsHomeFragment extends AppFragment {
 
         binding.fab.setOnClickListener(v -> navController.navigate(R.id.newPostFragment));
 
+        db.collection("posts").addSnapshotListener((collectionSnapshot, e) -> {
+            for (DocumentSnapshot documentSnapshot: collectionSnapshot) {
+                postsList.add(documentSnapshot.toObject(Post.class));
+            }
+        });
+    }
+
+    class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> {
+
+        @NonNull
+        @Override
+        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            return new ViewHolder(ViewholderPostBinding.inflate(getLayoutInflater(), parent, false));
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+
+        }
+
+        @Override
+        public int getItemCount() {
+            return 0;
+        }
+
+        class ViewHolder extends RecyclerView.ViewHolder {
+            ViewholderPostBinding binding;
+            public ViewHolder(ViewholderPostBinding binding) {
+                super(binding.getRoot());
+                this.binding = binding;
+            }
+        }
     }
 }
