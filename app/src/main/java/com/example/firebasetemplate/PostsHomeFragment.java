@@ -14,6 +14,7 @@ import com.example.firebasetemplate.databinding.FragmentPostsBinding;
 import com.example.firebasetemplate.databinding.ViewholderPostBinding;
 import com.example.firebasetemplate.model.Post;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,12 +38,17 @@ public class PostsHomeFragment extends AppFragment {
 
         binding.postsRecyclerView.setAdapter(adapter = new PostsAdapter());
 
-        db.collection("posts").addSnapshotListener((collectionSnapshot, e) -> {
+        setQuery().addSnapshotListener((collectionSnapshot, e) -> {
+            postsList.clear();
             for (DocumentSnapshot documentSnapshot: collectionSnapshot) {
                 postsList.add(documentSnapshot.toObject(Post.class));
             }
             adapter.notifyDataSetChanged();
         });
+    }
+
+    Query setQuery() {
+        return db.collection("posts");
     }
 
     class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> {
