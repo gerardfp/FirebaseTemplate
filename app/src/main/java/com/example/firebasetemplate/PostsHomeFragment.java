@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.firebasetemplate.databinding.FragmentPostsBinding;
 import com.example.firebasetemplate.databinding.ViewholderPostBinding;
 import com.example.firebasetemplate.model.Post;
@@ -56,6 +57,7 @@ public class PostsHomeFragment extends AppFragment {
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             holder.binding.contenido.setText(postsList.get(position).content);
             holder.binding.autor.setText(postsList.get(position).authorName);
+            Glide.with(requireContext()).load(postsList.get(position).imageUrl).into(holder.binding.imagen);
         }
 
         @Override

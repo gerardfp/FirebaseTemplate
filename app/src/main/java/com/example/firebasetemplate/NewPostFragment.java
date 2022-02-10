@@ -49,7 +49,7 @@ public class NewPostFragment extends AppFragment {
                     .getReference("/images/"+ UUID.randomUUID()+".jpg")
                     .putFile(uriImagen)
                     .continueWithTask(task -> task.getResult().getStorage().getDownloadUrl())
-                    .addOnCompleteListener(urlDescarga -> {
+                    .addOnSuccessListener(urlDescarga -> {
                         Post post = new Post();
                         post.content = binding.contenido.getText().toString();
                         post.authorName = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
