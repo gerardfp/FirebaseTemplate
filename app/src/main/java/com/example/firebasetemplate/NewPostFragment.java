@@ -38,8 +38,10 @@ public class NewPostFragment extends AppFragment {
         binding.previsualizacion.setOnClickListener(v -> galeria.launch("image/*"));
 
         appViewModel.uriImagenSeleccionada.observe(getViewLifecycleOwner(), uri -> {
-            Glide.with(this).load(uri).into(binding.previsualizacion);
-            uriImagen = uri;
+            if (uri != null) {
+                Glide.with(this).load(uri).into(binding.previsualizacion);
+                uriImagen = uri;
+            }
         });
 
         binding.publicar.setOnClickListener(v -> {
@@ -59,6 +61,7 @@ public class NewPostFragment extends AppFragment {
                         FirebaseFirestore.getInstance().collection("posts")
                                 .add(post)
                                 .addOnCompleteListener(task -> {
+                                    appViewModel.setUriImagenSeleccionada(null);
                                     binding.publicar.setEnabled(true);
                                     navController.popBackStack();
                                 });
