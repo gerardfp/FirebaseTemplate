@@ -7,9 +7,11 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.firebasetemplate.NavigationDirections.ActionPostsHomeFragmentToViewPostFragment;
 import com.example.firebasetemplate.databinding.FragmentPostsBinding;
 import com.example.firebasetemplate.databinding.ViewholderPostBinding;
 import com.example.firebasetemplate.model.Post;
@@ -19,11 +21,11 @@ import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class PostsHomeFragment extends AppFragment {
 
     private FragmentPostsBinding binding;
-    private List<Post> postsList = new ArrayList<>();
     private PostsAdapter adapter;
 
     @Override
@@ -40,13 +42,18 @@ public class PostsHomeFragment extends AppFragment {
         binding.postsRecyclerView.setAdapter(adapter = new PostsAdapter());
 
         setQuery().addSnapshotListener((collectionSnapshot, e) -> {
-            postsList.clear();
-            for (DocumentSnapshot documentSnapshot: collectionSnapshot) {
-                Post post = documentSnapshot.toObject(Post.class);
-                post.postid = documentSnapshot.getId();
-                postsList.add(post);
+
+            List<Post> newPostsList = new ArrayList<>();
+            if (collectionSnapshot != null) {
+                for (DocumentSnapshot documentSnapshot : collectionSnapshot) {
+                    Post post = documentSnapshot.toObject(Post.class);
+                    if (post != null) {
+                        post.postid = documentSnapshot.getId();
+                        newPostsList.add(post);
+                    }
+                }
             }
-            adapter.notifyDataSetChanged();
+            adapter.updatePostList(newPostsList);
         });
     }
 
@@ -55,6 +62,7 @@ public class PostsHomeFragment extends AppFragment {
     }
 
     class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> {
+        private final List<Post> postsList = new ArrayList<>();
 
         @NonNull
         @Override
@@ -71,11 +79,55 @@ public class PostsHomeFragment extends AppFragment {
 
             holder.binding.favorito.setOnClickListener(v -> {
                 db.collection("posts").document(post.postid)
-                        .update("likes."+auth.getUid(),
+                        .update("likes." + auth.getUid(),
                                 !post.likes.containsKey(auth.getUid()) ? true : FieldValue.delete());
             });
 
             holder.binding.favorito.setChecked(post.likes.containsKey(auth.getUid()));
+
+            holder.itemView.setOnClickListener(v -> {
+                ActionPostsHomeFragmentToViewPostFragment action = NavigationDirections.actionPostsHomeFragmentToViewPostFragment();
+                action.setPostid(post.postid);
+                navController.navigate(action);
+            });
+        }
+
+        public void updatePostList(List<Post> newList) {
+            DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new DiffUtil.Callback() {
+                @Override
+                public int getOldListSize() {
+                    return postsList.size();
+                }
+
+                @Override
+                public int getNewListSize() {
+                    return newList.size();
+                }
+
+                @Override
+                public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+                    return postsList.get(oldItemPosition).postid.equals(newList.get(newItemPosition).postid) ;
+                }
+
+                @Override
+                public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+                    Post oldPost = postsList.get(oldItemPosition);
+                    Post newpost = newList.get(newItemPosition);
+
+                    if (!Objects.equals(oldPost.postid, newpost.postid)) return false;
+                    if (!Objects.equals(oldPost.content, newpost.content)) return false;
+                    if (!Objects.equals(oldPost.authorName, newpost.authorName)) return false;
+                    if (!Objects.equals(oldPost.imageUrl, newpost.imageUrl)) return false;
+
+                    if (oldPost.likes.containsKey(auth.getUid()) != newpost.likes.containsKey(auth.getUid())) return false;
+
+                    return oldPost.likes.size() != newpost.likes.size();
+                }
+            });
+
+            postsList.clear();
+            postsList.addAll(newList);
+            diffResult.dispatchUpdatesTo(this);
         }
 
         @Override
@@ -85,6 +137,7 @@ public class PostsHomeFragment extends AppFragment {
 
         class ViewHolder extends RecyclerView.ViewHolder {
             ViewholderPostBinding binding;
+
             public ViewHolder(ViewholderPostBinding binding) {
                 super(binding.getRoot());
                 this.binding = binding;

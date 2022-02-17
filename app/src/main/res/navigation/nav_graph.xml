@@ -52,6 +52,11 @@
         <action
             android:id="@+id/action_postsHomeFragment_to_profileFragment"
             app:destination="@id/profileFragment" />
+        <action
+            android:id="@+id/action_postsHomeFragment_to_viewPostFragment"
+            app:destination="@id/viewPostFragment">
+
+        </action>
         <fragment
             android:id="@+id/postsHomeFragment"
             android:name="com.example.firebasetemplate.PostsHomeFragment"
@@ -73,5 +78,17 @@
             tools:layout="@layout/fragment_posts">
 
         </fragment>
+
     </navigation>
+    <fragment
+        android:id="@+id/viewPostFragment"
+        android:name="com.example.firebasetemplate.ViewPostFragment"
+        android:label="fragment_view_post"
+        tools:layout="@layout/fragment_view_post">
+        <argument
+            android:name="postid"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+    </fragment>
 </navigation>
